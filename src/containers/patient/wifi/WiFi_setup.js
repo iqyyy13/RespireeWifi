@@ -26,6 +26,7 @@ const WiFi_setup = () => {
   const [ssid, setSsid] = useState('');
   const [password, setPassword] = useState('');
   const [isSecureEntry, setSecureEntry] = useState(true);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // BLE Service and Characteristic UUIDs
   const HMGATEWAY_SERVICE = '80006769-666E-6F63-2020-726174532A41';
@@ -54,6 +55,9 @@ const WiFi_setup = () => {
 
   const onConnectPressed = () => {
     console.log(`MAC ID: ${macID}`);
+    if (isConnecting) return;
+
+    setIsConnecting(true);
 
     // Check if selected item is already connected
     if (selectedItem.connected) {
@@ -248,9 +252,15 @@ const WiFi_setup = () => {
                 <Text style={styles.buttonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.button}
-                onPress={onConnectPressed}>
-                <Text style={styles.buttonText}>Connect</Text>
+                style={[styles.button, isConnecting && styles.disabledButton]}
+                onPress={onConnectPressed}
+                disabled={isConnecting}>
+                <Text
+                  style={
+                    isConnecting ? styles.disabledButtonText : styles.buttonText
+                  }>
+                  Connect
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -301,8 +311,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 75,
     backgroundColor: '#0F52BA',
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -331,6 +339,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '400',
     color: '#fff',
+  },
+
+  disabledButton: {
+    backgroundColor: '#d3d3d3',
+  },
+
+  disabledButtonText: {
+    color: '#000000',
   },
 
   input: {

@@ -38,16 +38,19 @@ const WiFi = () => {
 
   const renderItem = ({item}) => {
     //console.log(item);
+    const isSelected = selectedItemId === item.id;
+
+    const containerStyle = [
+      styles.deviceContainer,
+      isSelected && {backgroundColor: '#ADD8E6'},
+    ];
     return (
       <TouchableOpacity
-        style={styles.deviceContainer}
+        style={containerStyle}
         onPress={() => handleItemPress(item)}>
         <Text style={styles.deviceName}>
-          {item.name} {'   '} ({item.id})
+          {item.name} {'  '} ({item.id})
         </Text>
-        {selectedItemId === item.id && (
-          <AntDesign name="checkcircleo" size={25} color="green" />
-        )}
       </TouchableOpacity>
     );
   };
@@ -362,7 +365,7 @@ const styles = StyleSheet.create({
   },
 
   deviceName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
   },
