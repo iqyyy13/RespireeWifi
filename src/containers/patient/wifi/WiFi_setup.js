@@ -248,8 +248,16 @@ const WiFi_setup = () => {
           </View>
           <View style={styles.buttonContainerSpace}>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={onCancelPressed}>
-                <Text style={styles.buttonText}>Cancel</Text>
+              <TouchableOpacity
+                style={[styles.button, isConnecting && styles.disabledButton]}
+                onPress={onCancelPressed}
+                disabled={isConnecting}>
+                <Text
+                  style={
+                    isConnecting ? styles.disabledButtonText : styles.buttonText
+                  }>
+                  Cancel
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.button, isConnecting && styles.disabledButton]}
@@ -259,7 +267,7 @@ const WiFi_setup = () => {
                   style={
                     isConnecting ? styles.disabledButtonText : styles.buttonText
                   }>
-                  Connect
+                  {isConnecting ? 'Connecting...' : 'Connect'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -346,6 +354,8 @@ const styles = StyleSheet.create({
   },
 
   disabledButtonText: {
+    fontSize: 20,
+    fontWeight: '400',
     color: '#000000',
   },
 
