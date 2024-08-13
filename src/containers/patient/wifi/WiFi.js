@@ -20,6 +20,8 @@ import {PermissionsAndroid} from 'react-native';
 import BleManager from 'react-native-ble-manager';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
+import theme, {appColors, appFonts} from '../../../defaults/App.theme';
+
 const BleManagerModule = NativeModules.BleManager;
 const BleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
@@ -28,7 +30,6 @@ const WiFi = () => {
   const navigation = useNavigation();
   const [devices, setDevices] = useState([]);
   const [isScanning, setIsScanning] = useState(false);
-  const [connectedDevices, setConnectedDevices] = useState([]);
   const [discoveredDevices, setDiscoveredDevices] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedItemId, setSelectedItemId] = useState(null);
@@ -264,14 +265,10 @@ const styles = StyleSheet.create({
     flex: 0.1,
   },
 
-  header: {
-    marginVertical: 10,
-  },
-
   title: {
-    fontSize: 20,
-    fontWeight: '500',
-    color: 'white',
+    fontSize: theme.sizes.xxl,
+    fontWeight: theme.appFonts.extraBold,
+    color: theme.appColors.white,
     marginTop: 20,
     textAlign: 'center',
   },
@@ -314,9 +311,9 @@ const styles = StyleSheet.create({
   },
 
   buttonText: {
-    fontSize: 22,
+    fontSize: theme.sizes.xxl,
     fontWeight: '400',
-    color: '#fff',
+    color: theme.appColors.white,
   },
 
   buttonDisabled: {
@@ -327,11 +324,6 @@ const styles = StyleSheet.create({
     color: 'gray',
   },
 
-  bottomtext: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-
   deviceContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -340,32 +332,15 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 10,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: theme.appColors.grey10,
     borderRadius: 5,
-    backgroundColor: 'white',
-  },
-
-  deviceItem: {
-    fontSize: 16,
-    marginBottom: 10,
+    backgroundColor: theme.appColors.white,
   },
 
   deviceName: {
-    fontSize: 18,
+    fontSize: theme.sizes.extraMedium,
     fontWeight: 'bold',
-    color: '#000',
-  },
-
-  deviceInfo: {
-    fontSize: 14,
-  },
-
-  deviceButton: {
-    backgroundColor: '#2196F3',
-    padding: 8,
-    borderRadius: 5,
-    marginBottom: 20,
-    paddingHorizontal: 20,
+    color: theme.appColors.black,
   },
 
   flatListContent: {

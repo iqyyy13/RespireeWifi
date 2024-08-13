@@ -75,7 +75,7 @@ const WiFi_setup = () => {
 
     setTimeout(() => {
       disconnectFromPeripheral(selectedItem);
-    }, 10000);
+    }, 8000);
   };
 
   const formatMacAddress = macID => {
@@ -119,24 +119,49 @@ const WiFi_setup = () => {
 
       DeviceEventEmitter.addListener(
         'BleManagerDidUpdateValueForCharacteristic',
-        data => {
-          const byteArray = data.value;
-          const buffer = Buffer.from(byteArray);
-          const text = buffer.toString('utf-8');
-          console.log('Received notif: ', text);
-        },
+        handleNotification,
       );
     } catch (error) {
       console.error('Connection error:', error);
     }
   };
 
-  // disconnect with device
-  const disconnectFromPeripheral = peripheral => {
+  const handleNotification = data => {
+    const byteArray = data.value;
+    const buffer = Buffer.from(byteArray);
+    const text = buffer.toString('utf-8');
+
+    console.log('Received notif: ', text);
+
+    switch (text) {
+      case 'OK':
+        console.log('Received OK');
+        break;
+
+      case 'CON':
+        console.log('Received CON');
+        break;
+
+      case 'NOK':
+        console.log('Received NOK');
+        break;
+
+      case 'STA':
+        console.log('Received STA');
+        break;
+
+      default:
+        console.log('Received unknown value');
+        break;
+    }
     DeviceEventEmitter.removeAllListeners(
       'BleManagerDidUpdateValueForCharacteristic',
+      handleNotification,
     );
+  };
 
+  // disconnect with device
+  const disconnectFromPeripheral = peripheral => {
     BleManager.disconnect(peripheral.id)
       .then(() => {
         peripheral.connected = false;
