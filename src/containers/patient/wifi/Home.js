@@ -14,7 +14,6 @@ const Home = () => {
   const navigation = useNavigation();
 
   const onWiFiPressed = () => {
-    console.log('WiFi login');
     navigation.navigate('WiFi');
   };
 

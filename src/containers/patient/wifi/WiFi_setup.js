@@ -9,6 +9,7 @@ import {
   Alert,
   NativeEventEmitter,
   NativeModules,
+  DeviceEventEmitter,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -46,7 +47,6 @@ const WiFi_setup = () => {
 
   const handleBackPress = () => {
     navigation.goBack();
-    console.warn('back to wifi_setup page');
   };
 
   const onCancelPressed = () => {
@@ -54,7 +54,6 @@ const WiFi_setup = () => {
   };
 
   const onConnectPressed = () => {
-    console.log(`MAC ID: ${macID}`);
     if (isConnecting) return;
 
     setIsConnecting(true);
@@ -71,14 +70,12 @@ const WiFi_setup = () => {
     connectToPeripheral(selectedItem);
 
     setTimeout(() => {
-      console.log('sending wifi details...');
       sendSsidPwd(selectedItem.id, ssid, password);
     }, 3000);
 
     setTimeout(() => {
-      console.log('Disconnecting from peripheral...');
       disconnectFromPeripheral(selectedItem);
-    }, 5000);
+    }, 10000);
   };
 
   const formatMacAddress = macID => {
@@ -87,24 +84,59 @@ const WiFi_setup = () => {
 
   const displayMacID = formatMacAddress(macID) || '';
 
-  const connectToPeripheral = peripheral => {
-    BleManager.connect(peripheral.id)
-      .then(() => {
-        console.log('Connected to device:', peripheral.id);
-        return BleManager.retrieveServices(peripheral.id);
-      })
-      .then(deviceInfo => {
-        peripheral.connected = true;
-        peripherals.set(peripheral.id, peripheral);
-        console.log('BLE device paired and connected successfully', deviceInfo);
-      })
-      .catch(error => {
-        console.error('Connection error:', error);
-      });
+  //const connectToPeripheral = peripheral => {
+  //  BleManager.connect(peripheral.id)
+  //    .then(() => {
+  //      console.log('Connected to device:', peripheral.id);
+  //      return BleManager.retrieveServices(peripheral.id);
+  //    })
+  //    .then(deviceInfo => {
+  //      peripheral.connected = true;
+  //      peripherals.set(peripheral.id, peripheral);
+  //      console.log('BLE device paired and connected successfully', deviceInfo);
+  //    })
+  //    .catch(error => {
+  //      console.error('Connection error:', error);
+  //    });
+  //};
+
+  const connectToPeripheral = async peripheral => {
+    try {
+      await BleManager.connect(peripheral.id);
+
+      const deviceInfo = await BleManager.retrieveServices(peripheral.id);
+
+      peripheral.connected = true;
+      peripherals.set(peripheral.id, peripheral);
+
+      await BleManager.startNotification(
+        peripheral.id,
+        HMGATEWAY_SERVICE,
+        HMGATEWAY_CHARACTERISTIC_GATEWAY,
+      );
+
+      console.log('Started notifcation on ' + HMGATEWAY_CHARACTERISTIC_GATEWAY);
+
+      DeviceEventEmitter.addListener(
+        'BleManagerDidUpdateValueForCharacteristic',
+        data => {
+          const byteArray = data.value;
+          const buffer = Buffer.from(byteArray);
+          const text = buffer.toString('utf-8');
+          console.log('Received notif: ', text);
+        },
+      );
+    } catch (error) {
+      console.error('Connection error:', error);
+    }
   };
 
   // disconnect with device
   const disconnectFromPeripheral = peripheral => {
+    DeviceEventEmitter.removeAllListeners(
+      'BleManagerDidUpdateValueForCharacteristic',
+    );
+
     BleManager.disconnect(peripheral.id)
       .then(() => {
         peripheral.connected = false;
@@ -112,7 +144,6 @@ const WiFi_setup = () => {
         Alert.alert('Alert', 'Successfully setup.', [
           {
             text: 'OK',
-            onPress: () => console.log('OK Pressed'),
           },
         ]);
       })
@@ -125,10 +156,6 @@ const WiFi_setup = () => {
 
   const sendSsidPwd = (deviceId, SSID, pwd) => {
     if (!SSID || !pwd || !deviceId) return;
-
-    console.log(deviceId);
-    console.log(SSID);
-    console.log(pwd);
 
     const deviceid = deviceId + '';
 
@@ -151,18 +178,6 @@ const WiFi_setup = () => {
 
     //pbytes[0] = idx;
     pbytes[0] = 1 + ssid.length + pwd.length; // Set the total length
-
-    console.log('pbytes==', pbytes.length, pbytes);
-    console.log(
-      'deviceId',
-      deviceid,
-      'service',
-      HMGATEWAY_SERVICE,
-      'characteristic',
-      HMGATEWAY_CHARACTERISTIC_WIFI,
-    );
-
-    console.log('writing...');
 
     BleManager.write(
       deviceid,

@@ -59,7 +59,6 @@ const WiFi = () => {
     if (!isScanning) {
       BleManager.scan([], 8, false)
         .then(() => {
-          console.log('Scanning...');
           setIsScanning(true);
         })
         .catch(error => {
@@ -88,17 +87,15 @@ const WiFi = () => {
 
               //Add new device to the list
               const newDevices = [
-                //return [
                 ...prevDevices,
                 {
                   id: device.id,
                   name: device.name || 'Unnamed Device',
                 },
               ];
-              //console.log("Devices List:", newDevices);
               return newDevices;
             });
-          } //console.log('Discovered device:', device);
+          }
         },
       );
       return () => {
@@ -144,13 +141,11 @@ const WiFi = () => {
     navigation.goBack();
   };
 
-  const handleConnect = item => {
-    console.log('Navigating to WiFi Setup Page for ', item);
+  const handleConnect = () => {
     navigation.navigate('WiFi_setup', {macID, selectedItem});
   };
 
   const handleRefresh = () => {
-    console.log('refreshing...');
     navigation.navigate('Home');
 
     setTimeout(() => {
@@ -161,20 +156,14 @@ const WiFi = () => {
   const handleItemPress = item => {
     setSelectedItem(item);
     setSelectedItemId(item.id);
-    console.log(`Item pressed: ${item.name}`);
-    console.log(`MAC ID: ${item.id}`);
     setMacID(item.id);
     BleManager.stopScan();
-    console.log('Scan stopped');
+    1;
   };
 
   useEffect(() => {
-    BleManager.enableBluetooth().then(() => {
-      console.log('Bluetooth is turned on');
-    });
-    BleManager.start({showAlert: false}).then(() => {
-      console.log('BleManager initialized');
-    });
+    BleManager.enableBluetooth().then(() => {});
+    BleManager.start({showAlert: false}).then(() => {});
 
     let stopDiscoverListener = BleManagerEmitter.addListener(
       'BleManagerDiscoverPeripheral',
@@ -200,9 +189,7 @@ const WiFi = () => {
     );
 
     requestBluetoothPermission();
-    console.log('requested');
     startScan();
-    console.log('scanned');
 
     return () => {
       stopDiscoverListener.remove();
@@ -238,7 +225,6 @@ const WiFi = () => {
             style={[styles.button, !isItemSelected && styles.buttonDisabled]}
             onPress={() => {
               if (isItemSelected && selectedItemId) {
-                console.log('Button pressed');
                 handleConnect(selectedItemId);
               } else {
                 console.log('No item selected or item not available');
@@ -284,7 +270,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 20,
-    fontWeight: '400',
+    fontWeight: '500',
     color: 'white',
     marginTop: 20,
     textAlign: 'center',
